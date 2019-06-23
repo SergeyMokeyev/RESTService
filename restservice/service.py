@@ -1,18 +1,31 @@
 import handlers
 import inspect
-from aiohttp.web import middleware, Application, run_app, json_response
+import inflection
+import logging
+from aiohttp.web import middleware, Application, run_app, Request, Response, HTTPError, json_response
+from marshmallow.exceptions import ValidationError
+from json.decoder import JSONDecodeError
 from restservice.handler import RESTHandler
-from restservice.exception import RESTError
 
 
 class RESTService(Application):
     @middleware
-    async def middleware(self, request, handler):
+    async def middleware(self, request: Request, handler) -> Response:
         try:
-            return json_response(await handler(request))
-
-        except RESTError as exc:
-            return json_response(dict(error=exc.error, message=exc.message, detail=exc.detail))
+            return await handler(request)
+        except Exception as exc:
+            status = exc.status if hasattr(exc, 'status') else 400
+            if isinstance(exc, (RuntimeError, TypeError)):
+                logging.exception(exc)
+                status = 500
+            error = inflection.underscore(type(exc).__name__).upper()
+            message = exc.message if hasattr(exc, 'message') else inflection.humanize(error).capitalize() + '.'
+            detail = exc.detail if hasattr(exc, 'detail') else None
+            if isinstance(exc, ValidationError):
+                detail = exc.messages
+            elif isinstance(exc, JSONDecodeError):
+                detail = exc.msg
+            return json_response(status=status, data=dict(error=error, message=message, detail=detail))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

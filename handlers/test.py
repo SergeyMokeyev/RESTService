@@ -1,16 +1,18 @@
 from marshmallow import Schema, fields
-from restservice import RESTError, RESTHandler
+from restservice.handler import RESTHandler
 
 
 class Request(Schema):
     pass
+    test = fields.Str(required=True)
 
 
 class TestHandler(RESTHandler):
     schema = Request
     method = 'GET'
-    path = '/test'
+    path = r'/test/{user_id}'
 
-    async def handler(self, data):
-        raise RESTError('TEST_ERROR', 'Test error message')
+    async def handler(self, data, user_id):
+        print(user_id)
+        print(data)
         return {'test': 'ok'}

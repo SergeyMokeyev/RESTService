@@ -1,5 +1,6 @@
 class RESTError(Exception):
-    def __init__(self, error, message=None, detail=None):
+    def __init__(self, error, message=None, detail=None, *, status=200):
         self.error = error
         self.message = message
         self.detail = detail
+        self.status = status
