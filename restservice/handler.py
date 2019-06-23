@@ -14,6 +14,10 @@ class RESTHandler(ABC):
         assert cls.method in __METHODS, f'Attribute method must be one of {__METHODS}.'
         return super().__new__(cls)
 
+    def __init__(self, config):
+        if config:
+            self.config = config
+
     async def prepare(self, request: Request) -> Response:
         if self.raw:
             return await self.handler(request)

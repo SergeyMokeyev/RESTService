@@ -6,6 +6,7 @@ from aiohttp.web import middleware, Application, run_app, Request, Response, HTT
 from marshmallow.exceptions import ValidationError
 from json.decoder import JSONDecodeError
 from restservice.handler import RESTHandler
+from restservice.config import Config
 
 
 class RESTService(Application):
@@ -27,11 +28,12 @@ class RESTService(Application):
                 detail = exc.msg
             return json_response(status=status, data=dict(error=error, message=message, detail=detail))
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, config=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.config = Config(config) if config else None
         for _, cls in inspect.getmembers(handlers, inspect.isclass):
             if issubclass(cls, RESTHandler):
-                handler = cls()
+                handler = cls(self.config)
                 self.router.add_route(method=handler.method, path=handler.path, handler=handler.prepare)
         self.middlewares.append(self.middleware)
 
@@ -40,4 +42,4 @@ class RESTService(Application):
 
 
 if __name__ == '__main__':
-    RESTService().start()
+    RESTService(config='../config.yaml').start()

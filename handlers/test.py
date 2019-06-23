@@ -13,6 +13,4 @@ class TestHandler(RESTHandler):
     path = r'/test/{user_id}'
 
     async def handler(self, data, user_id):
-        print(user_id)
-        print(data)
-        return {'test': 'ok'}
+        return {'db': self.config.db}
