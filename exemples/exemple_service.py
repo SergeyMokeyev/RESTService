@@ -1,4 +1,4 @@
-from aiohttp.web import View, json_response, RouteTableDef
+from aiohttp.web import json_response, RouteTableDef
 from restservice import RESTError, RESTService, RESTConfig, RESTHandler
 
 
