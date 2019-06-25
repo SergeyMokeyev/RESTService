@@ -6,7 +6,6 @@ class RESTConfig:
     def __init__(self, file):
         with open(file) as f:
             config = {x[0].upper(): x[1] for x in yaml.safe_load(f).items()}
-
         self.ENVIRONMENT = (os.environ.get('ENVIRONMENT') or os.environ.get('ENV') or 'DEFAULT').upper()
         self.__config = config.get(self.ENVIRONMENT) or {}
         self.__default = config.get('DEFAULT') or {}
