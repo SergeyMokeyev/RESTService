@@ -2,11 +2,15 @@ import os
 import yaml
 
 
-class Config:
+class RESTConfig:
     def __init__(self, file):
-        self.env = os.environ.get('ENVIRONMENT')
         with open(file) as f:
-            self.config = yaml.safe_load(f)
+            config = {x[0].upper(): x[1] for x in yaml.safe_load(f).items()}
 
-    def __getattr__(self, item):
-        return os.environ.get(item.upper()) or self.config.get(self.env, {}).get(item)
+        self.ENVIRONMENT = (os.environ.get('ENVIRONMENT') or os.environ.get('ENV') or 'DEFAULT').upper()
+        self.__config = config.get(self.ENVIRONMENT) or {}
+        self.__default = config.get('DEFAULT') or {}
+
+        for param in self.__annotations__:
+            value = os.environ.get(param.upper()) or self.__config.get(param) or self.__default.get(param)
+            self.__dict__[param] = value

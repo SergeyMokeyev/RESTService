@@ -1,25 +1,25 @@
-import handlers
-import inspect
 import inflection
 import logging
-from aiohttp.web import middleware, Application, run_app, Request, Response, HTTPError, json_response
+from aiohttp.web import middleware, Application, run_app, json_response
 from marshmallow.exceptions import ValidationError
 from json.decoder import JSONDecodeError
-from restservice.handler import RESTHandler
-from restservice.config import Config
 
 
 class RESTService(Application):
+    Application.config = None
+
     @middleware
-    async def middleware(self, request: Request, handler) -> Response:
+    async def middleware(self, request, handler):
         try:
+            if self.config:
+                handler.config = self.config
             return await handler(request)
         except Exception as exc:
             status = exc.status if hasattr(exc, 'status') else 400
-            if isinstance(exc, (RuntimeError, TypeError)):
+            if isinstance(exc, (RuntimeError, TypeError, AttributeError, AssertionError, KeyError)):
                 logging.exception(exc)
                 status = 500
-            error = inflection.underscore(type(exc).__name__).upper()
+            error = exc.error if hasattr(exc, 'error') else inflection.underscore(type(exc).__name__).upper()
             message = exc.message if hasattr(exc, 'message') else inflection.humanize(error).capitalize() + '.'
             detail = exc.detail if hasattr(exc, 'detail') else None
             if isinstance(exc, ValidationError):
@@ -28,18 +28,10 @@ class RESTService(Application):
                 detail = exc.msg
             return json_response(status=status, data=dict(error=error, message=message, detail=detail))
 
-    def __init__(self, config=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.config = Config(config) if config else None
-        for _, cls in inspect.getmembers(handlers, inspect.isclass):
-            if issubclass(cls, RESTHandler):
-                handler = cls(self.config)
-                self.router.add_route(method=handler.method, path=handler.path, handler=handler.prepare)
+        self.config = None
         self.middlewares.append(self.middleware)
 
     def start(self):
         run_app(self)
-
-
-if __name__ == '__main__':
-    RESTService(config='../config.yaml').start()
