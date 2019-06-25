@@ -1,4 +1,5 @@
 DEFAULT:
+  DB: default
 
 LOCAL:
   DB: local
