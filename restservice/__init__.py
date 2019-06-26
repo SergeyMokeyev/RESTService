@@ -1,7 +1,7 @@
-from restservice.service import RESTService
-from restservice.exception import RESTError
-from restservice.config import RESTConfig
-from restservice.handler import RESTHandler
+from .service import RESTService
+from .exception import RESTError
+from .config import RESTConfig
+from .handler import RESTHandler
 
 
 __all__ = ['RESTService', 'RESTError', 'RESTConfig', 'RESTHandler']

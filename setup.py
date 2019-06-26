@@ -3,14 +3,19 @@ import setuptools
 
 setuptools.setup(
     name='restservice',
-    version='0.1.5',
+    version='0.1.6',
     author='Sergey Mokeyev',
     author_email='sergey.mokeyev@gmail.com',
     description='A small JSON API service template',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     url='https://github.com/SergeyMokeyev/RESTService',
-    packages=setuptools.find_packages(exclude=['tests', 'examples']),
+    data_files=[
+        ('README.md', ['README.md'])
+    ],
+    packages=[
+        'restservice'
+    ],
     classifiers=[
         'Programming Language :: Python :: 3.7',
         'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
