@@ -3,7 +3,7 @@ import setuptools
 
 setuptools.setup(
     name='restservice',
-    version='0.1.6',
+    version='0.1.7',
     author='Sergey Mokeyev',
     author_email='sergey.mokeyev@gmail.com',
     description='A small JSON API service template',

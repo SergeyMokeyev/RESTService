@@ -3,6 +3,7 @@ import logging
 from aiohttp.web import middleware, Application, run_app, json_response
 from marshmallow.exceptions import ValidationError
 from json.decoder import JSONDecodeError
+from .handler import RESTHandler
 
 
 class RESTService(Application):
@@ -11,7 +12,7 @@ class RESTService(Application):
     @middleware
     async def middleware(self, request, handler):
         try:
-            if self.config:
+            if self.config and isinstance(handler, RESTHandler):
                 handler.config = self.config
             return await handler(request)
         except Exception as exc:
