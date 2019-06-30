@@ -1,6 +1,6 @@
 import os
 from aiohttp.test_utils import AioHTTPTestCase, unittest_run_loop
-from aiohttp.web import json_response
+from aiohttp.web import json_response, Response, Request
 from restservice import RESTService, RESTConfig, RESTHandler, RESTError
 from marshmallow import Schema, fields
 
@@ -16,6 +16,8 @@ class TestConfig(RESTConfig):
 
 class TestHandler(RESTHandler):
     async def get(self):
+        if self.request.query:
+            return json_response(dict(self.request.query), status=202)
         return json_response(self.request.match_info)
 
     async def post(self):
@@ -42,10 +44,15 @@ class MyAppTestCase(AioHTTPTestCase):
         app.config = TestConfig(f'{os.path.dirname(os.path.abspath(__file__))}/test_config.yaml')
         app.router.add_view(r'/test', TestHandler)
         app.router.add_view(r'/test/{name}', TestHandler)
+
         return app
 
     @unittest_run_loop
     async def test_valid_request(self):
+        resp = await self.client.request('GET', '/test?a=1&b=2')
+        assert resp.status == 202
+        assert await resp.json() == {'a': '1', 'b': '2'}
+
         resp = await self.client.request('GET', '/test/bob')
         assert resp.status == 200
         assert await resp.json() == {'name': 'bob'}
