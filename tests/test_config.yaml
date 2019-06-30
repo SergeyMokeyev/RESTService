@@ -1,0 +1,7 @@
+DEFAULT:
+  TEST_PARAM: test
+
+DEV:
+
+PROD:
+  TEST_PARAM: prod

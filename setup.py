@@ -3,7 +3,7 @@ import setuptools
 
 setuptools.setup(
     name='restservice',
-    version='0.1.8',
+    version='0.1.10',
     author='Sergey Mokeyev',
     author_email='sergey.mokeyev@gmail.com',
     description='A small JSON API service template',
@@ -15,12 +15,6 @@ setuptools.setup(
     ],
     packages=[
         'restservice'
-    ],
-    py_modules=[
-        'restservice.config',
-        'restservice.exception',
-        'restservice.handler',
-        'restservice.service'
     ],
     classifiers=[
         'Programming Language :: Python :: 3.7',
